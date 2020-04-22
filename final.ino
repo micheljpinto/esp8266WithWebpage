@@ -1,6 +1,6 @@
-/******* Author: Eng.Automation, Michel de Jesus Pinto *******/
-/******** Date:  04/2020**************************************/
-/******** micheljpinto@gmail.com *****************************/
+/******* Author: Automation and C. Engineering, Michel de Jesus Pinto *******/
+/********************** Date:  04/2020 **************************************/
+/*********************** micheljpinto@gmail.com *****************************/
 
 /* Webserver using microcontroler esp8266, developed with Arduino 
 framework system on VsCode Editor (recomended for best visualization
@@ -17,23 +17,30 @@ and using json protocol for better compatibility with javascript   */
   #include <ESPAsyncTCP.h>
   #include "index.h"
 /************************************SYS MACROS AND DEFINES****************************************/
-  //#define MODEAP                //If define the wifi settings working AP mode, if not STATIO mode 
+  #define MODEAP                //If define the wifi settings working AP mode, if not STATIO mode 
   #define QTDE_OF_SENSORS 3
   #define SERIAL_SPEED 230400
+  //IMPORTANT! Adjust OUT according, the pin of ucontroler desired for to be controlled
+  #define OUT1  16
+  #define OUT2  5
+  #define OUT3  4
+  #define OUT4  0
+
 /**************************************************************************************************/  
 
 /*************************************** DATA OF CONECTIONS****************************************/
-  #define MY_STATIC_IP    192,168,1,154   // adjust for your config //  
-  #define SERVER_IP       192,168,1,1     // adjust for your config //  
+  #define MY_STATIC_IP    192,168,0,154   // adjust for your config //  
+  #define SERVER_IP       192,168,0,1     // adjust for your config //  
   #define SUBNET_MASK     255,255,255,0   // adjust for your config // 
-  #define SSID       "default0"           // adjust for your config // 
-  #define PASSWORD  "@hfj0601"            // adjust for your config // 
+  #define SSID            "Casa 21B RK"      // adjust for your config // 
+  #define PASSWORD        "ri84ka82li20"      // adjust for your config // 
 /************************************** END DATA OF CONECTIONS*************************************/
 
 /***************************************PROTOTYPES OF FUNCTIONS************************************/
   //WEBSERVER
   void setupWebServer();
-  void parserJsonActuatorWrite(String);
+  String parserJsonActuatorWrite(String);
+  int convertChar(String);
 
 /*************************************END PROTOTYPE FUNCTIONS***************************************/
 
@@ -45,17 +52,18 @@ and using json protocol for better compatibility with javascript   */
     
   #ifdef MODEAP
     
-    const char* ssid = "espTeste";        
-    const char* password =  "12345678";   
+    const char* ssid =      "espTeste";        
+    const char* password =  "mich1983";   
     //if network using microcontroler that acess point
+    
     void setupWithAP() {
       WiFi.softAP(ssid, password);
       IPAddress myIP = WiFi.softAPIP();
-      //WiFi.begin();
+      WiFi.begin();
       Serial.println("Acess Point - Adress IP conected: ");
       Serial.println(myIP);
       // Print ESP8266 Local IP Address
-      Serial.println(WiFi.localIP());
+      // Serial.println(WiFi.localIP());
     }
 
   #else //if choice STATION mode...   
@@ -70,16 +78,13 @@ and using json protocol for better compatibility with javascript   */
       //WiFi.mode(WIFI_STA);
       WiFi.config(ipStatic, ipGateway, subnet);
       WiFi.begin(ssid, password);
-      Serial.println("Waiting network...");
       Serial.println("Conecting WIFI network...");
       
       while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
+        delay(50);
         Serial.print(".");
       }
-      Serial.print("Adress IP conected: ");
-      Serial.println(WiFi.localIP());
-  
+        
     }
   #endif
                     
@@ -99,8 +104,8 @@ and using json protocol for better compatibility with javascript   */
       for (size_t i = 0; i < len; i++) {
         stream+=(char)data[i];
       }
-      parserJsonActuatorWrite(stream);
-      request->send(200,"text/html","OK");
+      ;
+      request->send(200,"text/html",parserJsonActuatorWrite(stream));
     });   //fim server on 
 
    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -115,40 +120,84 @@ and using json protocol for better compatibility with javascript   */
 
 /*****************************************END WEBSERVER*********************************************/
           
-/****************************************ENDPOINT FUNCTIONS*****************************************/
-
-
-  void deserealizeJsonReceivingActuatorsStatetWrite(String json){
+/******************************************OTHERS FUNCTIONS*****************************************/
+  String parserJsonActuatorWrite(String json){
     
-    const size_t capacity = JSON_OBJECT_SIZE(40) + 15;
+    const size_t capacity = JSON_OBJECT_SIZE(2) + 30;
     DynamicJsonBuffer jsonBuffer(capacity);
-    //const char* json = "{\"id\":12,\"status\":1}";
+
+    //const char* json = "{\"id\":\"OUT1\",\"status\":false}";
     JsonObject& root = jsonBuffer.parseObject(json);
 
     if (!root.success()) {
       Serial.println("Json received error at endpoint /writeatuador! ");
-      return;
+      return "3";
     }
 
-    int id = root["id"]; // 12
-    int status = root["status"]; // 1
-    Serial.println(json);
-    //Change this line for IOS
-    digitalWrite(LED_BUILTIN,!digitalRead(LED_BUILTIN));  
+    const char* id = root["id"]; // "OUT1"
+        
+    bool status = root["status"]; // false
+    //Serial.println(id);
+    Serial.println(status);
+    int id2 = convertChar(String(id));
+    bool state= !digitalRead(id2);
+
+    if(state==status)
+      return ( state?"1":"0");
+    else{
+      digitalWrite(id2,!status);
+      return (status?"1":"0");
+    }
+    
+    
+    
+
   }
-      
+
+
+  int convertChar(String aId){
+    int temp;
+    
+      if(aId=="OUT1"){
+        temp=OUT1;
+      }
+      else if(aId=="OUT2"){
+        temp=OUT2;
+      }
+      else if(aId=="OUT3"){
+        temp=OUT3;
+      } else {
+        temp=OUT4;
+      }
+    //Serial.println(temp);
+    return temp;
+  }
+
+/******************************************END FUNCTIONS********************************************/
+
+/****************************************VOID SETUP /LOOP*******************************************/      
   void setup() { 
     Serial.begin(SERIAL_SPEED);
       while (!Serial); 
+      delay(50);
     #ifdef MODEAP
       setupWithAP();
     #else 
       setupWithSTATION();
     #endif
     setupWebServer();
+    pinMode(OUT1,OUTPUT);
+    pinMode(OUT2,OUTPUT);
+    pinMode(OUT3,OUTPUT);
+    pinMode(OUT4,OUTPUT);
     pinMode(LED_BUILTIN,OUTPUT);
-    Serial.println("\nNetwork conected");
-    Serial.print("IP address: ");
+    digitalWrite(OUT1,HIGH);
+    digitalWrite(OUT2,HIGH);
+    digitalWrite(OUT3,HIGH);
+    digitalWrite(OUT4,HIGH);
+    
+    Serial.print("\nNetwork conected");
+    Serial.print("\nIP address: ");
     Serial.println(WiFi.localIP());
     
   }

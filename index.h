@@ -1,250 +1,401 @@
 const char MAIN_page[] PROGMEM = R"=====(
 
-    <!DOCTYPE html>
-<html>
-
+<!DOCTYPE html>
+<html lang="pt-BR">
 
 <head>
-    
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <style >
-      .switch {
-          position: relative;
-          display: inline-block;
-          width: 60px;
-          height: 34px;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automation using IOT</title>
+    <style>
+        .tudo {
+            display: table;
+        }
+
+        .menu {
+            float: left;
+            width: 30%;
+        }
+
+        .conteudo {
+            margin-left: 35%;
+        }
+
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
         }
 
         .switch input {
-          opacity: 0;
-          width: 0;
-          height: 0;
+            opacity: 0;
+            width: 0;
+            height: 0;
         }
 
         .slider {
-          position: absolute;
-          cursor: pointer;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: #ccc;
-          -webkit-transition: .4s;
-          transition: .4s;
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+
         }
 
         .slider:before {
-          position: absolute;
-          content: "";
-          height: 26px;
-          width: 26px;
-          left: 4px;
-          bottom: 4px;
-          background-color: white;
-          -webkit-transition: .4s;
-          transition: .4s;
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
         }
 
-        input:checked + .slider {
-          background-color: #2196F3;
+        input:checked+.slider {
+            background-color: #2196F3;
         }
 
-        input:focus + .slider {
-          box-shadow: 0 0 1px #2196F3;
+        input:focus+.slider {
+            box-shadow: 0 0 1px #2196F3;
         }
 
-        input:checked + .slider:before {
-          -webkit-transform: translateX(26px);
-          -ms-transform: translateX(26px);
-          transform: translateX(26px);
+        input:checked+.slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
         }
 
         /* Rounded sliders */
         .slider.round {
-          border-radius: 34px;
+            border-radius: 34px;
         }
 
         .slider.round:before {
-          border-radius: 50%;
+            border-radius: 50%;
         }
 
+
+        .container {
+            display: grid;
+            grid-template-columns: auto auto;
+            /* 2 COL LAYOUT */
+        }
+
+        /*FIM DO SWITCH*/
+
+
+        div>h1 {
+            text-align: center;
+            font-size: 250%;
+            margin-top: 0px;
+            padding-top: 10px;
+            width: auto;
+            height: 0px;
+
+        }
+
+        div>h2 {
+            padding-top: 2%;
+            text-align: center;
+        }
+
+        div {
+            background-color: rgb(145, 201, 201);
+        }
+
+        div>img {
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .divL,
+        .divR {
+            box-sizing: border-box;
+            padding: 5px;
+            /*adicionadas por mim*/
+            border: 2px solid #ccc;
+
+
+        }
+
+        .divL .divR,
+        button,
+        p {
+            padding: 10px 20px 10px 20px;
+            /*espaçamento interno dos botoẽs*/
+            text-transform: capitalize;
+            text-shadow: 2px 3px #ccc;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+        }
+
+        .divL .divR,
+        .switch {
+
+            text-transform: capitalize;
+            text-shadow: 2px 3px #ccc;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+        }
+
+        .divL {
+            background: #ffffff;
+            /*OPTIONAL WIDTH
+    width: 40%; */
+
+        }
+
+        .divR {
+            background: #ffffff;
+            /* OPTIONAL WIDTH 
+    width: 60% */
+        }
+
+        .dot {
+            height: 40px;
+            width: 20px;
+            background-color: red;
+            border-radius: 50%;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            justify-content: center;
+            border: 4px solid #e3ecec;
+
+
+
+        }
+
+        @media only screen and (max-width: 768px) {
+
+            .divL,
+            .divR {
+                float: none;
+                display: block;
+                width: 100%;
+            }
+        }
     </style>
 
     <script>
-      (function () {
+        (function () {
 
-$(document).ready(function () {
+            document.addEventListener('DOMContentLoaded', function () {
 
-    document.querySelector("#submitDados").addEventListener("click", e => {
-        var nome = document.querySelector("#prename").value
-        var idade = parseInt(document.querySelector("#idade").value)
-        alert(nome + idade)
-    })
+                var url = "/writeatuador";
 
-    //SLIDE BUTTON
-    $('.switch').change(function () {
-
-        var b = $(this).children("input").prop("checked")
-        //var b1= document.getElementsByTagName("input").prop("checked")
-        var a = $("input[type=checkbox]")
-        //console.clear()
-        console.log(b)
-        if (b) {
-            console.log("Check box in Checked")
-
-        } else {
-            //document.getElementsByClassName(a).checked = true;
-            console.log("Check box in Unchecked")
-
-        }
-    })
-    //FIM SLIDE BUTTON
-
-    $("p").click(function () {
-        $(this).css("color", "#0000ff")
-
-    })
+                //SUBMIT
+                /*         document.querySelector("#submitDados").addEventListener("click", e => {
+                            var nome = document.querySelector("#prename").value
+                            var idade = parseInt(document.querySelector("#idade").value)
+                            alert(nome + idade)
+                        }) */
+                //FIM SUBMIT
 
 
-    $(".btMotor").click(function () {
+                //BT MOTOR
 
-        //retorna status do objeto button
-        var statusValueLocal = $(this).attr('value')
+                var checkClassBtMotor = document.querySelectorAll('.btMotor');
 
-        //retorna o indice do botão que foi acionado
-        var objectPosition = $(this).index("button")
-        //document.getElementById(".btMotor").innerHTML = "myJSON"
-        //console.log(event.currentTarget)
+                checkClassBtMotor.forEach(function (check) {
+                    check.addEventListener('click', check_btMotor);
+                })
 
-        if (statusValueLocal == 1) {
-            $(this).attr('value', 0)
-            var statusValueChanged = 0
-            var index = $("div").index();
-        } else {
-            $(this).attr('value', 1)
-            var statusValueChanged = 1
-        }
+                function check_btMotor(event) {
+                    let motorIndex = Array.from(checkClassBtMotor).indexOf(event.target);
+                    let obj = checkClassBtMotor[motorIndex];
+                    alert(motorIndex);
 
-        //console.log("Posição do objeto:" + objectPosition + "\n Valor do status Anterior:" + statusValueLocal + "\nValor do status Modificado:" + statusValueChanged)
-        var json = varConcat(objectPosition, statusValueChanged)
-        //console.log(json)
-        sendJSON(json)
+                    let msg = varConcat(motorIndex, obj.value);
+
+                    console.log(sendJSON(msg));
 
 
-    })
+                    if (parseInt(obj.value)) {
+                        obj.setAttribute("value", 0)
 
-    function varConcat(pos, Status) {
-        var obj = {id:pos,status:Status}
-        return obj
+                    }
 
-    }
+                }
 
-    function sendPost(varConcat) {
-
-        var data = JSON.stringify(varConcat);
-        console.log(data)
-        var settings = {
-            "url": "192.168.1.154/post",
-            "withCredentials": "false",
-            "method": "POST",
-            "timeout": 0,
-            "headers": {
-            "Content-Type": ["application/json", "text/plain"]
-            },
-            "data": JSON.stringify(varConcat),
-        };
-
-        $.ajax(settings).done(function (response) {
-            console.log(response);
-        });
+                //END BTMOTOR
 
 
+                //SLIDE BUTTON
+                var checkClassSwitch = document.querySelectorAll('.switch input[type=checkbox]')
 
-    }
+                checkClassSwitch.forEach(function (check) {
+                    check.addEventListener('click', check_switchIndex);
+                })
+                var changeStatus;
+                function check_switchIndex(event) {
 
-    function sendJSON(json){
+                    //retorna status do objeto button
+                    let swIndex = Array.from(checkClassSwitch).indexOf(event.target)
+                    let status = checkClassSwitch[swIndex].checked
+                    let id = checkClassSwitch[swIndex].id;
+                    changeStatus = checkClassSwitch[swIndex].parentNode.parentNode.childNodes[3]
+                    console.log(changeStatus.previousSibling.previousSibling);
 
-
-        // Creating a XHR object
-        let xhr = new XMLHttpRequest();
-        let url = "/writeatuador"
-
-        // open a connection
-        xhr.open("POST", url, true);
-        xhr.withCredentials = false;
-        // Set the request header i.e. which type of content you are sending
-        xhr.setRequestHeader("Content-Type", "application/json");
-
-        // Create a state change callback
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-
-                // Print received data from server
-                console.log(this.responseText);
-
-            }
-        };
-
-        // Converting JSON data to string
-        var data = JSON.stringify(json);
-        console.log(data);
-
-        // Sending data with the request
-        xhr.send(data);
-    }
+                    //condições de test
+                    /*          if (status) {
+                                 console.log("Check box in Checked")
+                                 //console.log(swIndex);
+                     
+                             } else {
+                                 //document.getElementsByClassName(a).checked = true;
+                                 console.log("Check box in Unchecked");
+                                 //console.log(swIndex);
+                             } */
+                    //fim condições de teste
 
 
+                    sendJSON(varConcat(id, status));
 
-})
+                }
 
-})()
+                //FIM SLIDE BUTTON
+
+
+                function varConcat(pos, Status) {
+                    let obj = {
+                        id: pos,
+                        status: Status
+                    }
+                    return obj
+                }
+
+                var sucess = "";
+
+                function sendJSON(json) {
+
+                    // Creating a XHR object
+                    let xhr = new XMLHttpRequest();
+
+                    // open a connection
+                    xhr.open("POST", url, true);
+                    xhr.withCredentials = true;
+                    // Set the request header i.e. which type of content you are sending
+                    xhr.setRequestHeader("Content-Type", "application/json");
+
+
+                    // Create a state change callback
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4 && xhr.status === 200) {
+                            // Print received data from server
+                            sucess = parseInt(this.responseText);
+                            console.log('return Endpoint: ' + sucess);
+
+                            if (sucess == 1) {
+                                changeStatus.textContent = "Ligado"
+                                status = "true"
+                                changeStatus.previousSibling.previousSibling.style.backgroundColor =
+                                    "green"
+                            }
+                            if (sucess == 0) {
+                                changeStatus.textContent = "Desligado";
+                                status = "false"
+                                changeStatus.previousSibling.previousSibling.style.backgroundColor =
+                                    "red";
+                            } else {
+
+                            }
+
+                        } else {
+                            console.log("Mensagem não enviada");
+                            changeStatus.textContent == "Ligado"? status="true": status="false";
+                            sucess = "3"
+                        }
+
+                    };
+
+                    // Converting JSON data to string
+                    var data = JSON.stringify(json);
+                    console.log(data);
+                    //console.log(sucess);
+                    // Sending data with the request
+                    xhr.send(data);
+                    return sucess;
+                }
+
+
+            })
+
+        })()
     </script>
-
 </head>
 
 <body>
 
     <div>
-        <p class="status">Ligado</p>
-        <img src="img_pulpitrock.jpg" alt="Pulpit Rock" width="284" height="213"><br>
-        <button class="btMotor" value=1>Motor 1</button>
-    </div>Digite seu nome
-
-    <div>
-        <p id="status2">Ligado</p>
-        <img src="img_pulpitrock.jpg" alt="Pulpit Rock" width="284" height="213"><br>
-        <button class="btMotor" value=1>Motor 2</button>
+        <h1>AUTOMATION IOT </h1>
+        <h2>with JS - CSS - HTML and Esp8266</h2>
     </div>
 
-    <div>
-        <h2>Dados pessoais</h2>
-        <input type="text" id="prename" autocomplete="false" placeholder="Digite seu nome"><br>
+    <div class="container">
 
-        <input type="text" id="idade" autocomplete="false" placeholder="Digite sua idade"> <br>
-        <button id="submitDados" type="submit">Envie</button>
+        <div class="divR">
+            <p class="dot"></p>
+            <p class="status">Indefinido</p>
+            <label class="switch">
+                <input id="OUT1" type="checkbox">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="divL">
+            <p class="dot"></p>
+            <p class="status">Indefinido</p>
+            <label class="switch">
+                <input id="OUT2" type="checkbox">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="divR">
+            <p class="dot"></p>
+            <p class="status">Indefinido</p>
+            <label class="switch">
+                <input id="OUT3" type="checkbox">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="divL">
+            <p class="dot"></p>
+            <p class="status">Indefinido</p>
+            <label class="switch">
+                <input id="OUT4" type="checkbox">
+                <span class="slider"></span>
+            </label>
+        </div>
+
 
     </div>
 
-    <h2>Toggle Switch</h2>
 
-    <label class="switch">
-        <input type="checkbox">
-        <span class="slider"></span>
-    </label>
-
-    <label class="switch">
-        <input type="checkbox">
-        <span class="slider round"></span>
-    </label>
-
-    <label class="switch">
-        <input type="checkbox">
-        <span class="slider round"></span>
-    </label>
 </body>
 
 </html>
-
-
 
 )=====";
