@@ -10,28 +10,25 @@ and using json protocol for better compatibility with javascript   */
 //SYSTEM INCLUDES
   #include <ESP8266WiFi.h>  
   #define ARDUINOJSON_ENABLE_ARDUINO_STRING 1
-  #include <ArduinoJson.h> // last version of 5.XX 
+  #include <ArduinoJson.h> // version use in project of 5.13.5 
 
 //Webserver Includes
   #include <ESPAsyncWebServer.h>
   #include <ESPAsyncTCP.h>
   #include "index.h"
-
-/**********************************************SYS MACROS AND DEFINES**************************************************/
-  //#define MODEAP              //If define the wifi settings working AP mode, if not STATIO mode 
-  #define REQUEST_TIME_SQL 120000   //tempo de requisição do servidor em milisegundos
+/************************************SYS MACROS AND DEFINES****************************************/
+  //#define MODEAP                //If define the wifi settings working AP mode, if not STATIO mode 
   #define QTDE_OF_SENSORS 3
   #define SERIAL_SPEED 230400
+/**************************************************************************************************/  
 
-/**********************************************************************************************************************/  
-
-/***************************************** DATA OF CONECTIONS**************************************/
+/*************************************** DATA OF CONECTIONS****************************************/
   #define MY_STATIC_IP    192,168,1,154   // adjust for your config //  
   #define SERVER_IP       192,168,1,1     // adjust for your config //  
   #define SUBNET_MASK     255,255,255,0   // adjust for your config // 
   #define SSID       "default0"           // adjust for your config // 
   #define PASSWORD  "@hfj0601"            // adjust for your config // 
-/*************************************** END DATA OF CONECTIONS************************************/
+/************************************** END DATA OF CONECTIONS*************************************/
 
 /***************************************PROTOTYPES OF FUNCTIONS************************************/
   //WEBSERVER
@@ -44,7 +41,7 @@ and using json protocol for better compatibility with javascript   */
   WiFiClient client;
   AsyncWebServer server(80); 
 
-/************************************************CONFIG WIFI*********************************************************/
+/**********************************************WIFI************************************************/
     
   #ifdef MODEAP
     
@@ -86,9 +83,9 @@ and using json protocol for better compatibility with javascript   */
     }
   #endif
                     
-/**************************************************END WIFI**********************************************************/
+/********************************************END WIFI**********************************************/
 
-/*************************************************CONFIG WEBSERVER***************************************************/
+/*******************************************WEBSERVER***********************************************/
           
   void setupWebServer(){
     
@@ -116,7 +113,7 @@ and using json protocol for better compatibility with javascript   */
     Serial.println("HTTP server started");
   }
 
-/**************************************************END WEBSERVER*****************************************************/
+/*****************************************END WEBSERVER*********************************************/
           
 /****************************************ENDPOINT FUNCTIONS*****************************************/
 
