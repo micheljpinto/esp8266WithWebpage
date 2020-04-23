@@ -18,7 +18,6 @@ and using json protocol for better compatibility with javascript   */
   #include "index.h"
 /************************************SYS MACROS AND DEFINES****************************************/
   //#define MODEAP                //If define the wifi settings working AP mode, if not STATIO mode 
-  #define QTDE_OF_SENSORS 3
   #define SERIAL_SPEED 230400
   //IMPORTANT! Adjust OUT according, the pin of ucontroler desired for to be controlled
   #define OUT1  16
@@ -32,8 +31,8 @@ and using json protocol for better compatibility with javascript   */
   #define MY_STATIC_IP    192,168,1,154   // adjust for your config //  
   #define SERVER_IP       192,168,1,1     // adjust for your config //  
   #define SUBNET_MASK     255,255,255,0   // adjust for your config // 
-  #define SSID            "default0"      // adjust for your config // 
-  #define PASSWORD        "@hfj0601"      // adjust for your config // 
+  #define SSID            "SSID"      // adjust for your config // 
+  #define PASSWORD        "PASS"      // adjust for your config // 
 /************************************** END DATA OF CONECTIONS*************************************/
 
 /***************************************PROTOTYPES OF FUNCTIONS************************************/
