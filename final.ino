@@ -17,7 +17,7 @@ and using json protocol for better compatibility with javascript   */
   #include <ESPAsyncTCP.h>
   #include "index.h"
 /************************************SYS MACROS AND DEFINES****************************************/
-  #define MODEAP                //If define the wifi settings working AP mode, if not STATIO mode 
+  //#define MODEAP                //If define the wifi settings working AP mode, if not STATIO mode 
   #define QTDE_OF_SENSORS 3
   #define SERIAL_SPEED 230400
   //IMPORTANT! Adjust OUT according, the pin of ucontroler desired for to be controlled
@@ -29,11 +29,11 @@ and using json protocol for better compatibility with javascript   */
 /**************************************************************************************************/  
 
 /*************************************** DATA OF CONECTIONS****************************************/
-  #define MY_STATIC_IP    192,168,0,154   // adjust for your config //  
-  #define SERVER_IP       192,168,0,1     // adjust for your config //  
+  #define MY_STATIC_IP    192,168,1,154   // adjust for your config //  
+  #define SERVER_IP       192,168,1,1     // adjust for your config //  
   #define SUBNET_MASK     255,255,255,0   // adjust for your config // 
-  #define SSID            "Casa 21B RK"      // adjust for your config // 
-  #define PASSWORD        "ri84ka82li20"      // adjust for your config // 
+  #define SSID            "default0"      // adjust for your config // 
+  #define PASSWORD        "@hfj0601"      // adjust for your config // 
 /************************************** END DATA OF CONECTIONS*************************************/
 
 /***************************************PROTOTYPES OF FUNCTIONS************************************/
@@ -41,13 +41,14 @@ and using json protocol for better compatibility with javascript   */
   void setupWebServer();
   String parserJsonActuatorWrite(String);
   int convertChar(String);
+  String returnStates();
 
 /*************************************END PROTOTYPE FUNCTIONS***************************************/
 
 /**************************************************VARIABLES****************************************/
   WiFiClient client;
   AsyncWebServer server(80); 
-
+  
 /**********************************************WIFI************************************************/
     
   #ifdef MODEAP
@@ -113,7 +114,13 @@ and using json protocol for better compatibility with javascript   */
       
       request->send(200, "text/html", mainPage);
     });
- 
+  
+    server.on("/returnstate", HTTP_GET, [](AsyncWebServerRequest *request){
+      String resp= returnStates();
+      
+      request->send(200, "json/text", resp);
+    });
+    
     server.begin();
     Serial.println("HTTP server started");
   }
@@ -148,12 +155,7 @@ and using json protocol for better compatibility with javascript   */
       digitalWrite(id2,!status);
       return (status?"1":"0");
     }
-    
-    
-    
-
   }
-
 
   int convertChar(String aId){
     int temp;
@@ -173,6 +175,33 @@ and using json protocol for better compatibility with javascript   */
     return temp;
   }
 
+  String returnStates(){
+    const size_t capacity = JSON_ARRAY_SIZE(4) + JSON_OBJECT_SIZE(1) + 4*JSON_OBJECT_SIZE(2);
+    DynamicJsonBuffer jsonBuffer(capacity);
+
+    JsonObject& root = jsonBuffer.createObject();
+    JsonArray& actuators = root.createNestedArray("actuators");
+
+    JsonObject& actuators_0 = actuators.createNestedObject();
+    actuators_0["id"] = "OUT1";
+    actuators_0["status"] = !digitalRead(OUT1);
+    
+    JsonObject& actuators_1 = actuators.createNestedObject();
+    actuators_1["id"] = "OUT2";
+    actuators_1["status"] = !digitalRead(OUT2);
+
+    JsonObject& actuators_2 = actuators.createNestedObject();
+    actuators_2["id"] = "OUT3";
+    actuators_2["status"] = !digitalRead(OUT3);
+
+    JsonObject& actuators_3 = actuators.createNestedObject();
+    actuators_3["id"] = "OUT4";
+    actuators_3["status"] = !digitalRead(OUT4);
+
+    String lastStates="";
+    root.printTo(lastStates);
+    return lastStates;
+  }
 /******************************************END FUNCTIONS********************************************/
 
 /****************************************VOID SETUP /LOOP*******************************************/      
