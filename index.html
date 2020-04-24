@@ -198,8 +198,6 @@ width: 60% */
     <script>
         (function () {
 
-
-
             document.addEventListener('DOMContentLoaded', function () {
                 document.addEventListener('DOMContentLoaded', receiveState());
 
@@ -207,41 +205,6 @@ width: 60% */
                 const url = "/writeatuador";
                 var returnStates;
 
-                //SUBMIT
-                /*         document.querySelector("#submitDados").addEventListener("click", e => {
-                            var nome = document.querySelector("#prename").value
-                            var idade = parseInt(document.querySelector("#idade").value)
-                            alert(nome + idade)
-                        }) */
-                //FIM SUBMIT
-
-
-                //BT MOTOR
-
-                const checkClassBtMotor = document.querySelectorAll('.btMotor');
-
-                checkClassBtMotor.forEach(function (check) {
-                    check.addEventListener('click', check_btMotor);
-                })
-
-                function check_btMotor(event) {
-                    let motorIndex = Array.from(checkClassBtMotor).indexOf(event.target);
-                    let obj = checkClassBtMotor[motorIndex];
-                    alert(motorIndex);
-
-                    let msg = varConcat(motorIndex, obj.value);
-
-                    console.log(sendJSON(msg));
-
-
-                    if (parseInt(obj.value)) {
-                        obj.setAttribute("value", 0)
-
-                    }
-
-                }
-
-                //END BTMOTOR
 
                 //SLIDE BUTTON
                 var checkClassSwitch = document.querySelectorAll('.switch input[type=checkbox]')
@@ -259,19 +222,6 @@ width: 60% */
                     let id = checkClassSwitch[swIndex].id;
                     changeStatus = checkClassSwitch[swIndex].parentNode.parentNode.childNodes[3]
                     console.log(changeStatus.previousSibling.previousSibling);
-
-                    //condições de test
-                    /*          if (status) {
-                                 console.log("Check box in Checked")
-                                 //console.log(swIndex);
-                     
-                             } else {
-                                 //document.getElementsByClassName(a).checked = true;
-                                 console.log("Check box in Unchecked");
-                                 //console.log(swIndex);
-                             } */
-                    //fim condições de teste
-
 
                     sendJSON(varConcat(id, status));
 
@@ -341,25 +291,6 @@ width: 60% */
                     return sucess;
                 }
 
-                /*                 function receiveState() {
-
-                                    var requestOptions = {
-                                        method: 'GET',
-                                        redirect: 'follow'
-                                    };
-
-
-                                    fetch("/returnstate", requestOptions)
-                                        .then(response => response.text())
-                                        .then(result => {
-                                            adjustInitiState(result);
-                                        })
-                                        .catch(error => console.log('error', error));
-
-
-                                } */
-
-
                 function receiveState() {
 
                     var xhttp = new XMLHttpRequest();
@@ -376,8 +307,6 @@ width: 60% */
 
                 }
 
-
-
                 function adjustInitiState(result) {
                     /*{"actuators":[{"id":"OUT1","status":false},{"id":"OUT2","status":false},
                     {"id":"OUT3","status":false},{"id":"OUT4","status":false}]} */
@@ -391,14 +320,12 @@ width: 60% */
                         let changeOnOffLabel = checkClassSwitch[index].parentNode.parentNode.childNodes[3];
                         let changeRedGreenBackground = changeOnOffLabel.previousElementSibling
 
-
                         if (jsonStatus.status) {
                             changeOnOffLabel.textContent = "Ligado";
                             checkClassSwitch[index].checked = "true";
                             changeRedGreenBackground.style.backgroundColor = "green";
                         } else {
                             changeOnOffLabel.textContent = "Desligado";
-                            //checkClassSwitch[index].checked="false";
                             changeRedGreenBackground.style.backgroundColor = "red";
 
                         }
