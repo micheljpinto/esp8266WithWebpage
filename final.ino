@@ -4,7 +4,7 @@
 
 /* Webserver using microcontroler esp8266, developed with Arduino 
 framework system on VsCode Editor (recomended for best visualization
-code). This code generate one webpage, acessed in the choiced ipadress,
+code). This code generate an webpage, acessed in the choiced ipadress,
 and using json protocol for better compatibility with javascript   */
 
 //SYSTEM INCLUDES
