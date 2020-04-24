@@ -4,11 +4,7 @@
 
 /* Webserver using microcontroler esp8266, developed with Arduino 
 framework system on VsCode Editor (recomended for best visualization
-<<<<<<< HEAD
 code). This code generate one webpage, acessed in the choiced ipadress,
-=======
-code). This code generate an webpage, acessed in the choiced ipadress,
->>>>>>> ba9f86c0186cadf52641f6f7f511edf54458be31
 and using json protocol for better compatibility with javascript   */
 
 //SYSTEM INCLUDES
@@ -35,13 +31,8 @@ and using json protocol for better compatibility with javascript   */
   #define MY_STATIC_IP    192,168,1,154   // adjust for your config //  
   #define SERVER_IP       192,168,1,1     // adjust for your config //  
   #define SUBNET_MASK     255,255,255,0   // adjust for your config // 
-<<<<<<< HEAD
   #define SSID            "default0"      // adjust for your config // 
   #define PASSWORD        "@hfj0601"      // adjust for your config // 
-=======
-  #define SSID            "SSID"      // adjust for your config // 
-  #define PASSWORD        "PASS"      // adjust for your config // 
->>>>>>> ba9f86c0186cadf52641f6f7f511edf54458be31
 /************************************** END DATA OF CONECTIONS*************************************/
 
 /***************************************PROTOTYPES OF FUNCTIONS************************************/
