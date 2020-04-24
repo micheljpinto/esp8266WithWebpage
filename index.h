@@ -7,7 +7,6 @@ const char MAIN_page[] PROGMEM = R"=====(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Automation using IOT</title>
-    
     <style>
         .tudo {
             display: table;
@@ -162,14 +161,14 @@ const char MAIN_page[] PROGMEM = R"=====(
         .divL {
             background: #ffffff;
             /*OPTIONAL WIDTH
-            width: 40%; */
+    width: 40%; */
 
         }
 
         .divR {
             background: #ffffff;
             /* OPTIONAL WIDTH 
-            width: 60% */
+width: 60% */
         }
 
         .dot {
@@ -201,8 +200,6 @@ const char MAIN_page[] PROGMEM = R"=====(
     <script>
         (function () {
 
-
-
             document.addEventListener('DOMContentLoaded', function () {
                 document.addEventListener('DOMContentLoaded', receiveState());
 
@@ -210,41 +207,6 @@ const char MAIN_page[] PROGMEM = R"=====(
                 const url = "/writeatuador";
                 var returnStates;
 
-                //SUBMIT
-                /*         document.querySelector("#submitDados").addEventListener("click", e => {
-                            var nome = document.querySelector("#prename").value
-                            var idade = parseInt(document.querySelector("#idade").value)
-                            alert(nome + idade)
-                        }) */
-                //FIM SUBMIT
-
-
-                //BT MOTOR
-
-                const checkClassBtMotor = document.querySelectorAll('.btMotor');
-
-                checkClassBtMotor.forEach(function (check) {
-                    check.addEventListener('click', check_btMotor);
-                })
-
-                function check_btMotor(event) {
-                    let motorIndex = Array.from(checkClassBtMotor).indexOf(event.target);
-                    let obj = checkClassBtMotor[motorIndex];
-                    alert(motorIndex);
-
-                    let msg = varConcat(motorIndex, obj.value);
-
-                    console.log(sendJSON(msg));
-
-
-                    if (parseInt(obj.value)) {
-                        obj.setAttribute("value", 0)
-
-                    }
-
-                }
-
-                //END BTMOTOR
 
                 //SLIDE BUTTON
                 var checkClassSwitch = document.querySelectorAll('.switch input[type=checkbox]')
@@ -262,19 +224,6 @@ const char MAIN_page[] PROGMEM = R"=====(
                     let id = checkClassSwitch[swIndex].id;
                     changeStatus = checkClassSwitch[swIndex].parentNode.parentNode.childNodes[3]
                     console.log(changeStatus.previousSibling.previousSibling);
-
-                    //condições de test
-                    /*          if (status) {
-                                 console.log("Check box in Checked")
-                                 //console.log(swIndex);
-                     
-                             } else {
-                                 //document.getElementsByClassName(a).checked = true;
-                                 console.log("Check box in Unchecked");
-                                 //console.log(swIndex);
-                             } */
-                    //fim condições de teste
-
 
                     sendJSON(varConcat(id, status));
 
@@ -344,25 +293,6 @@ const char MAIN_page[] PROGMEM = R"=====(
                     return sucess;
                 }
 
-                /*                 function receiveState() {
-
-                                    var requestOptions = {
-                                        method: 'GET',
-                                        redirect: 'follow'
-                                    };
-
-
-                                    fetch("/returnstate", requestOptions)
-                                        .then(response => response.text())
-                                        .then(result => {
-                                            adjustInitiState(result);
-                                        })
-                                        .catch(error => console.log('error', error));
-
-
-                                } */
-
-
                 function receiveState() {
 
                     var xhttp = new XMLHttpRequest();
@@ -379,8 +309,6 @@ const char MAIN_page[] PROGMEM = R"=====(
 
                 }
 
-
-
                 function adjustInitiState(result) {
                     /*{"actuators":[{"id":"OUT1","status":false},{"id":"OUT2","status":false},
                     {"id":"OUT3","status":false},{"id":"OUT4","status":false}]} */
@@ -394,14 +322,12 @@ const char MAIN_page[] PROGMEM = R"=====(
                         let changeOnOffLabel = checkClassSwitch[index].parentNode.parentNode.childNodes[3];
                         let changeRedGreenBackground = changeOnOffLabel.previousElementSibling
 
-
                         if (jsonStatus.status) {
                             changeOnOffLabel.textContent = "Ligado";
                             checkClassSwitch[index].checked = "true";
                             changeRedGreenBackground.style.backgroundColor = "green";
                         } else {
                             changeOnOffLabel.textContent = "Desligado";
-                            //checkClassSwitch[index].checked="false";
                             changeRedGreenBackground.style.backgroundColor = "red";
 
                         }
