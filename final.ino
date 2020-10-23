@@ -11,7 +11,8 @@ and using json protocol for better compatibility with javascript   */
   #include <ESP8266WiFi.h>  
   #define ARDUINOJSON_ENABLE_ARDUINO_STRING 1
   #include <ArduinoJson.h> // version use in project of 5.13.5 
-
+  #include <SHT31.h>
+  #include<BH1750.h>
 //Webserver Includes
   #include <ESPAsyncWebServer.h>
   #include <ESPAsyncTCP.h>
@@ -20,16 +21,17 @@ and using json protocol for better compatibility with javascript   */
   //#define MODEAP                //If define the wifi settings working AP mode, if not STATIO mode 
   #define SERIAL_SPEED 230400
   //IMPORTANT! Adjust OUT according, the pin of ucontroler desired for to be controlled
-  #define OUT1  16
-  #define OUT2  5
-  #define OUT3  4
-  #define OUT4  0
+  
+  #define SDA  0
+  #define SCL  2
+  int OUTPUTS[4]= {16,5,4,14};
+  #define QT_RELAYS 4 //quantity of realays.
 
 /**************************************************************************************************/  
 
 /*************************************** DATA OF CONECTIONS****************************************/
-  #define MY_STATIC_IP    192,168,1,154   // adjust for your config //  
-  #define SERVER_IP       192,168,1,1     // adjust for your config //  
+  #define MY_STATIC_IP    192,168,0,100   // adjust for your config //  
+  #define SERVER_IP       192,168,0,254     // adjust for your config //  
   #define SUBNET_MASK     255,255,255,0   // adjust for your config // 
   #define SSID            "default0"      // adjust for your config // 
   #define PASSWORD        "@hfj0601"      // adjust for your config // 
@@ -41,13 +43,15 @@ and using json protocol for better compatibility with javascript   */
   String parserJsonActuatorWrite(String);
   int convertChar(String);
   String returnStates();
+  String returnHumidityLightTemperature();
 
 /*************************************END PROTOTYPE FUNCTIONS***************************************/
 
 /**************************************************VARIABLES****************************************/
-  WiFiClient client;
+  //WiFiClient client;
   AsyncWebServer server(80); 
-  
+  SHT31 sht;
+  BH1750 lightMeter;
 /**********************************************WIFI************************************************/
     
   #ifdef MODEAP
@@ -108,18 +112,23 @@ and using json protocol for better compatibility with javascript   */
       request->send(200,"text/html",parserJsonActuatorWrite(stream));
     });   //fim server on 
 
-   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
       String mainPage= MAIN_page;
       
       request->send(200, "text/html", mainPage);
     });
-  
+
     server.on("/returnstate", HTTP_GET, [](AsyncWebServerRequest *request){
       String resp= returnStates();
       
       request->send(200, "json/text", resp);
     });
     
+    server.on("/returnsensors", HTTP_GET, [](AsyncWebServerRequest *request){
+      //String resp= returnHumidityLightTemperature().c_str;
+      
+      request->send(200, "json/text", returnHumidityLightTemperature());
+    });
     server.begin();
     Serial.println("HTTP server started");
   }
@@ -160,15 +169,15 @@ and using json protocol for better compatibility with javascript   */
     int temp;
     
       if(aId=="OUT1"){
-        temp=OUT1;
+        temp=OUTPUTS[0];
       }
       else if(aId=="OUT2"){
-        temp=OUT2;
+        temp=OUTPUTS[1];
       }
       else if(aId=="OUT3"){
-        temp=OUT3;
+        temp=OUTPUTS[2];
       } else {
-        temp=OUT4;
+        temp=OUTPUTS[3];
       }
     //Serial.println(temp);
     return temp;
@@ -183,23 +192,44 @@ and using json protocol for better compatibility with javascript   */
 
     JsonObject& actuators_0 = actuators.createNestedObject();
     actuators_0["id"] = "OUT1";
-    actuators_0["status"] = !digitalRead(OUT1);
+    actuators_0["status"] = !digitalRead(OUTPUTS[0]);
     
     JsonObject& actuators_1 = actuators.createNestedObject();
     actuators_1["id"] = "OUT2";
-    actuators_1["status"] = !digitalRead(OUT2);
+    actuators_1["status"] = !digitalRead(OUTPUTS[1]);
 
     JsonObject& actuators_2 = actuators.createNestedObject();
     actuators_2["id"] = "OUT3";
-    actuators_2["status"] = !digitalRead(OUT3);
+    actuators_2["status"] = !digitalRead(OUTPUTS[2]);
 
     JsonObject& actuators_3 = actuators.createNestedObject();
     actuators_3["id"] = "OUT4";
-    actuators_3["status"] = !digitalRead(OUT4);
+    actuators_3["status"] = !digitalRead(OUTPUTS[3]);
 
     String lastStates="";
     root.printTo(lastStates);
     return lastStates;
+  }
+
+  String returnHumidityLightTemperature(){
+    //DEBUG
+    //Serial.println(lightMeter.readLightLevel());
+    sht.read(0);         // default = true/fast       slow = falsedelay(10);
+    //Serial.println(sht.getTemperature());
+    //Serial.println(sht.getHumidity());
+    //END DEBUG
+    const size_t capacity = JSON_OBJECT_SIZE(4);
+    DynamicJsonBuffer jsonBuffer(capacity);
+
+    JsonObject& root = jsonBuffer.createObject();
+    root["sensor"] = 1;
+    root["temp"] = sht.getTemperature();
+    root["hum"] = sht.getHumidity();
+    root["lum"] = lightMeter.readLightLevel();
+    
+    String ret="";
+    root.printTo(ret);
+    return ret;
   }
 /******************************************END FUNCTIONS********************************************/
 
@@ -214,20 +244,24 @@ and using json protocol for better compatibility with javascript   */
       setupWithSTATION();
     #endif
     setupWebServer();
-    pinMode(OUT1,OUTPUT);
-    pinMode(OUT2,OUTPUT);
-    pinMode(OUT3,OUTPUT);
-    pinMode(OUT4,OUTPUT);
-    pinMode(LED_BUILTIN,OUTPUT);
-    digitalWrite(OUT1,HIGH);
-    digitalWrite(OUT2,HIGH);
-    digitalWrite(OUT3,HIGH);
-    digitalWrite(OUT4,HIGH);
+
+    for(int cont=0 ; cont<QT_RELAYS;cont++){
+      pinMode(OUTPUTS[cont],OUTPUT); //Configure
+      digitalWrite(OUTPUTS[cont],HIGH);
+    }
     
+  
+    // CONFIGURE WIRE SENSORS   
+    Wire.begin(SDA,SCL);
+    //Wire.setClock(100000);
+    //Start sensor of temperature, humidity and light
+    sht.begin(0x44,&Wire); 
+    lightMeter.begin(BH1750::ONE_TIME_LOW_RES_MODE, 0x23,&Wire); 
+    //Serial feedbacks
     Serial.print("\nNetwork conected");
     Serial.print("\nIP address: ");
     Serial.println(WiFi.localIP());
-    
+  
   }
 
   void loop() { 

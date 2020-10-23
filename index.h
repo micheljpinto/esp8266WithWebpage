@@ -1,5 +1,6 @@
 const char MAIN_page[] PROGMEM = R"=====(
 
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -95,11 +96,7 @@ const char MAIN_page[] PROGMEM = R"=====(
 
         div>h1 {
             text-align: center;
-            font-size: 230%;
-            margin-top: 0px;
-            padding-top: 10px;
-            width: auto;
-            height: 0px;
+            font-size: 230;
 
         }
 
@@ -108,10 +105,14 @@ const char MAIN_page[] PROGMEM = R"=====(
             text-align: center;
         }
 
-        div {
+        .divTitle {
             background-color: rgb(145, 201, 201);
         }
 
+        .sensors{
+            background-color: rgb(255, 255, 255);
+            text-align: center;
+        }
         div>img {
             margin-left: auto;
             margin-right: auto;
@@ -161,14 +162,14 @@ const char MAIN_page[] PROGMEM = R"=====(
         .divL {
             background: #ffffff;
             /*OPTIONAL WIDTH
-    width: 40%; */
+            width: 40%; */
 
         }
 
         .divR {
             background: #ffffff;
             /* OPTIONAL WIDTH 
-width: 60% */
+            width: 60% */
         }
 
         .dot {
@@ -181,9 +182,6 @@ width: 60% */
             display: flex;
             justify-content: center;
             border: 4px solid #e3ecec;
-
-
-
         }
 
         @media only screen and (max-width: 768px) {
@@ -202,7 +200,7 @@ width: 60% */
 
             document.addEventListener('DOMContentLoaded', function () {
                 document.addEventListener('DOMContentLoaded', receiveState());
-
+                document.addEventListener('DOMContentLoaded', getData());
                 const returnstate = "/returnstate"
                 const url = "/writeatuador";
                 var returnStates;
@@ -298,10 +296,7 @@ width: 60% */
                     var xhttp = new XMLHttpRequest();
                     xhttp.onreadystatechange = function () {
                         if (this.readyState == 4 && this.status == 200) {
-                            document.getElementById("demo").innerHTML =
-                                adjustInitiState(this.responseText);
-
-
+                            adjustInitiState(this.responseText);
                         }
                     };
                     xhttp.open("GET", "/returnstate", true);
@@ -334,6 +329,30 @@ width: 60% */
                     }
 
                 }
+
+                function getData() {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                printSensors(this.responseText);
+                }
+                };
+                xhttp.open("GET", "returnsensors", true);
+                xhttp.send();
+                }
+
+                window.addEventListener ('load', function () {
+                    setInterval (getData, 7000);
+                }, false);
+
+                function printSensors(resp){
+                   var json=JSON.parse(resp);
+                   console.log(json.temp);
+                   document.getElementById("temp1").innerHTML=json.temp; 
+                   document.getElementById("hum1").innerText=json.hum;
+                   document.getElementById("lum1").innerHTML=json.lum;
+                }
+                
             })
 
         })()
@@ -342,7 +361,7 @@ width: 60% */
 
 <body>
 
-    <div>
+    <div class="divTitle">
         <h1>AUTOMATION IOT </h1>
         <h2>with JS - CSS - HTML and Esp8266</h2>
     </div>
@@ -385,7 +404,18 @@ width: 60% */
             </label>
         </div>
 
-
+        <div class="divL">
+            <h3><b>SENSOR 1:<b></h3>
+            <h4>Temperatura: <span id="temp1"><b>0<b></span></h4>
+            <h4>Umidade: <span id="hum1"><b>0<b></span></h4>
+ 
+        </div>
+        
+        <div class="divR">
+            <h3><b>SENSOR 2:<b></h3>
+            <h4>Luminosidade: <span id="lum1"><b>0<b></span></h4> 
+              
+        </div>
     </div>
 
 
@@ -393,8 +423,4 @@ width: 60% */
 
 </html>
 
-<<<<<<< HEAD
 )=====";
-=======
-)=====";
->>>>>>> ba9f86c0186cadf52641f6f7f511edf54458be31
