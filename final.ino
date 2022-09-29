@@ -8,20 +8,28 @@ code). This code generate an webpage, acessed in the choiced ipadress,
 and using json protocol for better compatibility with javascript   */
 
 //SYSTEM INCLUDES
-  #include <ESP8266WiFi.h>  
+  #ifdef ESP8266
+    #include <ESP8266WiFi.h>  //Para esp8266
+    #include <ESPAsyncTCP.h>
+  #else
+    #include <WiFi.h>
+
+  #endif
+  #define FORMAT_SPIFFS_IF_FAILED true
   #define ARDUINOJSON_ENABLE_ARDUINO_STRING 1
   #include <ArduinoJson.h> // version use in project of 5.13.5 
-  #include <SHT31.h>
-  #include<BH1750.h>
+  //#include <SHT31.h>
+  //#include<BH1750.h>
 //Webserver Includes
   #include <ESPAsyncWebServer.h>
-  #include <ESPAsyncTCP.h>
+  
   #include "index.h"
 /************************************SYS MACROS AND DEFINES****************************************/
   //#define MODEAP                //If define the wifi settings working AP mode, if not STATIO mode 
   #define SERIAL_SPEED 230400
   //IMPORTANT! Adjust OUT according, the pin of ucontroler desired for to be controlled
-  
+  #include "FS.h"
+  #include "SPIFFS.h"
   #define SDA  0
   #define SCL  2
   int OUTPUTS[4]= {16,5,4,14};
@@ -50,8 +58,8 @@ and using json protocol for better compatibility with javascript   */
 /**************************************************VARIABLES****************************************/
   //WiFiClient client;
   AsyncWebServer server(80); 
-  SHT31 sht;
-  BH1750 lightMeter;
+  //SHT31 sht;
+  //BH1750 lightMeter;
 /**********************************************WIFI************************************************/
     
   #ifdef MODEAP
@@ -112,10 +120,15 @@ and using json protocol for better compatibility with javascript   */
       request->send(200,"text/html",parserJsonActuatorWrite(stream));
     });   //fim server on 
 
-    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+/*     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
       String mainPage= MAIN_page;
       
       request->send(200, "text/html", mainPage);
+    });
+     */
+
+    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+      request->send(SPIFFS, "/index.html", String());
     });
 
     server.on("/returnstate", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -214,7 +227,7 @@ and using json protocol for better compatibility with javascript   */
   String returnHumidityLightTemperature(){
     //DEBUG
     //Serial.println(lightMeter.readLightLevel());
-    sht.read(0);         // default = true/fast       slow = falsedelay(10);
+    //sht.read(0);         // default = true/fast       slow = falsedelay(10);
     //Serial.println(sht.getTemperature());
     //Serial.println(sht.getHumidity());
     //END DEBUG
@@ -223,9 +236,9 @@ and using json protocol for better compatibility with javascript   */
 
     JsonObject& root = jsonBuffer.createObject();
     root["sensor"] = 1;
-    root["temp"] = sht.getTemperature();
-    root["hum"] = sht.getHumidity();
-    root["lum"] = lightMeter.readLightLevel();
+    root["temp"] = 30; //sht.getTemperature();
+    root["hum"] = 50; //sht.getHumidity();
+    root["lum"] = 100;//lightMeter.readLightLevel();
     
     String ret="";
     root.printTo(ret);
@@ -235,9 +248,15 @@ and using json protocol for better compatibility with javascript   */
 
 /****************************************VOID SETUP /LOOP*******************************************/      
   void setup() { 
+ 
     Serial.begin(SERIAL_SPEED);
-      while (!Serial); 
+    while (!Serial); 
       delay(50);
+
+    if(!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)){
+      Serial.println("SPIFFS Mount Failed");
+      return;
+    }  
     #ifdef MODEAP
       setupWithAP();
     #else 
@@ -252,11 +271,11 @@ and using json protocol for better compatibility with javascript   */
     
   
     // CONFIGURE WIRE SENSORS   
-    Wire.begin(SDA,SCL);
+    //Wire.begin(SDA,SCL);
     //Wire.setClock(100000);
     //Start sensor of temperature, humidity and light
-    sht.begin(0x44,&Wire); 
-    lightMeter.begin(BH1750::ONE_TIME_LOW_RES_MODE, 0x23,&Wire); 
+    //sht.begin(0x44,&Wire); 
+    //lightMeter.begin(BH1750::ONE_TIME_LOW_RES_MODE, 0x23,&Wire); 
     //Serial feedbacks
     Serial.print("\nNetwork conected");
     Serial.print("\nIP address: ");
